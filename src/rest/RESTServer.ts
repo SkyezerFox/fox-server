@@ -1,5 +1,3 @@
-import { default as bodyParser } from "body-parser";
-import { default as cors } from "cors";
 import { EventEmitter } from "events";
 import { default as express, Handler, IRouterMatcher, Router } from "express";
 import * as http from "http";
@@ -86,6 +84,9 @@ export class RESTServer extends EventEmitter {
 			}
 		});
 
+		// Copy the use function to the server class.
+		this.use = this.express.use.bind(this.express);
+
 		// Bind requests to the logger, so we can get debug information
 		this.use(
 			morgan(this.server.options.debug === "debug" ? "common" : "dev", {
@@ -97,9 +98,6 @@ export class RESTServer extends EventEmitter {
 				},
 			})
 		);
-
-		this.use(cors());
-		this.use(bodyParser.json());
 	}
 
 	/**

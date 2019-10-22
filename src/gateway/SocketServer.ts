@@ -1,7 +1,5 @@
-import { Collection } from "discord.js";
 import { EventEmitter } from "events";
 import { IncomingMessage } from "http";
-import * as winston from "winston";
 import * as WebSocket from "ws";
 
 import { Server } from "../Server";

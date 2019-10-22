@@ -1,8 +1,5 @@
-import { default as chalk } from "chalk";
 import { EventEmitter } from "events";
 import * as http from "http";
-import { default as mongoose } from "mongoose";
-import * as winston from "winston";
 
 import { SocketServer } from "./gateway/SocketServer";
 import { RESTServer } from "./rest/RESTServer";

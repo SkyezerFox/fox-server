@@ -10,8 +10,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const body_parser_1 = __importDefault(require("body-parser"));
-const cors_1 = __importDefault(require("cors"));
 const events_1 = require("events");
 const express_1 = __importDefault(require("express"));
 const http = __importStar(require("http"));
@@ -32,6 +30,8 @@ class RESTServer extends events_1.EventEmitter {
                 Object.defineProperty(this, method.toLowerCase(), requestHandlerFunction);
             }
         });
+        // Copy the use function to the server class.
+        this.use = this.express.use.bind(this.express);
         // Bind requests to the logger, so we can get debug information
         this.use(morgan_1.default(this.server.options.debug === "debug" ? "common" : "dev", {
             stream: {
@@ -41,8 +41,6 @@ class RESTServer extends events_1.EventEmitter {
                 },
             },
         }));
-        this.use(cors_1.default());
-        this.use(body_parser_1.default.json());
     }
     /**
      * Open the server and start listening for requests.
