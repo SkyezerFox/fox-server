@@ -6,7 +6,8 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "tsc --build tsconfig.json",
-		"test": "mocha -r ts-node/register tests/*.ts"
+		"test": "mocha -r ts-node/register tests/*.ts",
+		"postinstall": "npm run build"
 	},
 	"dependencies": {
 		"axios": "^0.18.0",
