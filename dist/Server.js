@@ -70,7 +70,7 @@ class Server {
             }
         }
         spinner.succeed("Background tasks complete.\n");
-        logging_1.charLog(`${chalk_1.default.yellow("BARK!!!")} - Listening on port ${this.options.port}.\n`);
+        logging_1.charLog(`${chalk_1.default.yellow("BARK!!! ^w^")} - Listening on port ${this.options.port}.\n`);
     }
     /**
      * Stop the server.

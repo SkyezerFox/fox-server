@@ -120,7 +120,7 @@ export class Server<T extends ServerOptions = ServerOptions> {
 		spinner.succeed("Background tasks complete.\n");
 
 		charLog(
-			`${chalk.yellow("BARK!!!")} - Listening on port ${
+			`${chalk.yellow("BARK!!! ^w^")} - Listening on port ${
 				this.options.port
 			}.\n`
 		);
