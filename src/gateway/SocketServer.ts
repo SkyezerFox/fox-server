@@ -1,4 +1,4 @@
-import { default as chalk } from "chalk";
+import { default as colors } from "colors/safe";
 import { IncomingMessage } from "http";
 import * as winston from "winston";
 import * as WebSocket from "ws";
@@ -20,7 +20,7 @@ export class SocketServer {
 	constructor(server: Server) {
 		this.server = server;
 
-		this.logger = createLoggerWithPrefix(chalk.yellow("ws"));
+		this.logger = createLoggerWithPrefix(colors.yellow("ws"));
 
 		this.connections = new Map();
 	}

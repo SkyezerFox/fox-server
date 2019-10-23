@@ -1,4 +1,4 @@
-import { default as chalk } from "chalk";
+import { default as colors } from "colors/safe";
 import { default as express, IRouterMatcher } from "express";
 import * as http from "http";
 import { default as morgan } from "morgan";
@@ -59,7 +59,7 @@ export class RESTServer {
 		this.server = server;
 		this.express = express();
 
-		this.logger = createLoggerWithPrefix(chalk.blueBright("http"));
+		this.logger = createLoggerWithPrefix(colors.blue("http"));
 
 		// Iterate through HTTP methods and create functions for them.
 		http.METHODS.forEach((method) => {

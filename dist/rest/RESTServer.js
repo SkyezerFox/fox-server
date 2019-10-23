@@ -10,7 +10,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const chalk_1 = __importDefault(require("chalk"));
+const safe_1 = __importDefault(require("colors/safe"));
 const express_1 = __importDefault(require("express"));
 const http = __importStar(require("http"));
 const morgan_1 = __importDefault(require("morgan"));
@@ -23,7 +23,7 @@ class RESTServer {
     constructor(server) {
         this.server = server;
         this.express = express_1.default();
-        this.logger = logging_1.createLoggerWithPrefix(chalk_1.default.blueBright("http"));
+        this.logger = logging_1.createLoggerWithPrefix(safe_1.default.blue("http"));
         // Iterate through HTTP methods and create functions for them.
         http.METHODS.forEach((method) => {
             const requestHandlerFunction = this.express[method.toLowerCase()];

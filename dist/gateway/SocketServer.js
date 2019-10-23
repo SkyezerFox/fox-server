@@ -10,7 +10,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const chalk_1 = __importDefault(require("chalk"));
+const safe_1 = __importDefault(require("colors/safe"));
 const WebSocket = __importStar(require("ws"));
 const logging_1 = require("../util/logging");
 /**
@@ -19,7 +19,7 @@ const logging_1 = require("../util/logging");
 class SocketServer {
     constructor(server) {
         this.server = server;
-        this.logger = logging_1.createLoggerWithPrefix(chalk_1.default.yellow("ws"));
+        this.logger = logging_1.createLoggerWithPrefix(safe_1.default.yellow("ws"));
         this.connections = new Map();
     }
     /**

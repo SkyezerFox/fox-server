@@ -1,4 +1,4 @@
-import { default as chalk } from "chalk";
+import { default as colors } from "colors/safe";
 import * as http from "http";
 import { default as ora } from "ora";
 import * as winston from "winston";
@@ -59,9 +59,7 @@ export class Server<T extends ServerOptions = ServerOptions> {
 
 		this.http.on("error", (err) =>
 			console.log(
-				`${chalk.magentaBright("http")} ${chalk.redBright(
-					"error"
-				)} ${err}`
+				`${colors.magenta("http")} ${colors.red("error")} ${err}`
 			)
 		);
 
@@ -77,11 +75,11 @@ export class Server<T extends ServerOptions = ServerOptions> {
 	 */
 	public async start() {
 		charLog(
-			`${chalk.yellowBright("fox-server")} ${chalk.greenBright(
+			`${colors.yellow("fox-server")} ${colors.green(
 				await getCurrentTag()
-			)} ${chalk.grey(`on "${await getCurrentHash()}"`)}`
+			)} ${colors.grey(`on "${await getCurrentHash()}"`)}`
 		);
-		charLog(chalk.cyanBright("Preparing to bark...\n"));
+		charLog(colors.cyan("Preparing to bark...\n"));
 
 		let spinner = ora({
 			spinner: "dots",
@@ -96,12 +94,12 @@ export class Server<T extends ServerOptions = ServerOptions> {
 		await this.ws.init();
 
 		spinner.succeed("Server ready.");
-		spinner.start(`${chalk.cyanBright("Running startup tasks")}`);
+		spinner.start(`${colors.cyan("Running startup tasks")}`);
 
 		for (let i = 0; i < this.beforeStartTasks.length; i++) {
 			const task = this.beforeStartTasks[i];
 
-			spinner.text = `${chalk.cyanBright(
+			spinner.text = `${colors.cyan(
 				"Running startup tasks"
 			)} - ${task.name || "anonymous"}`;
 
@@ -109,7 +107,7 @@ export class Server<T extends ServerOptions = ServerOptions> {
 				await task(this);
 			} catch (err) {
 				spinner.stopAndPersist({
-					symbol: chalk.redBright("error"),
+					symbol: colors.red("error"),
 					text: `Error in task ${i} "${task.name || "anonymous"}".`,
 				});
 
@@ -125,7 +123,7 @@ export class Server<T extends ServerOptions = ServerOptions> {
 		spinner.succeed("Background tasks complete.\n");
 
 		charLog(
-			`${chalk.yellow("BARK!!! ^w^")} - Listening on port ${
+			`${colors.yellow("BARK!!! ^w^")} - Listening on port ${
 				this.options.port
 			}.\n`
 		);
