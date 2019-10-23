@@ -41,7 +41,7 @@ class Server {
      * Start the server.
      */
     async start() {
-        logging_1.charLog(`${chalk_1.default.yellowBright("fox-server")} ${chalk_1.default.greenBright(await git_1.getCurrentTag())} ${chalk_1.default.grey(`on "${await git_1.getCurrentHash()}"`)} :3`);
+        logging_1.charLog(`${chalk_1.default.yellowBright("fox-server")} ${chalk_1.default.greenBright(await git_1.getCurrentTag())} ${chalk_1.default.grey(`on "${await git_1.getCurrentHash()}"`)}`);
         logging_1.charLog(chalk_1.default.cyanBright("Preparing to bark...\n"));
         let spinner = ora_1.default({
             spinner: "dots",

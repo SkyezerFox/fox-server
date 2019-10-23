@@ -74,7 +74,7 @@ export class Server<T extends ServerOptions = ServerOptions> {
 		charLog(
 			`${chalk.yellowBright("fox-server")} ${chalk.greenBright(
 				await getCurrentTag()
-			)} ${chalk.grey(`on "${await getCurrentHash()}"`)} :3`
+			)} ${chalk.grey(`on "${await getCurrentHash()}"`)}`
 		);
 		charLog(chalk.cyanBright("Preparing to bark...\n"));
 
