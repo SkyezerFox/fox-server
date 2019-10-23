@@ -61,8 +61,9 @@ class RESTServer {
      * @param {String} path Path the router should hook to
      * @param {Funciton} handle Router handle function
      */
-    withRouter(path, handle) {
+    router(path, handle) {
         this.use(path, handle(this));
+        return this;
     }
 }
 exports.RESTServer = RESTServer;

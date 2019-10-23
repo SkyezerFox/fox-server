@@ -1,4 +1,4 @@
-import { FoxServer } from "../dist";
+import { FoxServer } from "../dist/";
 
 const server = new FoxServer();
 

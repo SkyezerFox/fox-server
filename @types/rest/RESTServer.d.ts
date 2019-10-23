@@ -56,5 +56,5 @@ export declare class RESTServer {
      * @param {String} path Path the router should hook to
      * @param {Funciton} handle Router handle function
      */
-    withRouter(path: string, handle: (server: this) => express.Router): void;
+    router(path: string, handle: (server: this) => express.Router): this;
 }

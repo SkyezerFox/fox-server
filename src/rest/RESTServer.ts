@@ -116,7 +116,8 @@ export class RESTServer {
 	 * @param {String} path Path the router should hook to
 	 * @param {Funciton} handle Router handle function
 	 */
-	public withRouter(path: string, handle: (server: this) => express.Router) {
+	public router(path: string, handle: (server: this) => express.Router) {
 		this.use(path, handle(this));
+		return this;
 	}
 }
