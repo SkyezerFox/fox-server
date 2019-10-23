@@ -11,6 +11,7 @@ import { NotFound } from "./errors";
 export declare interface RESTServer {
 	server: Server;
 	express: express.Application;
+	logger: winston.Logger;
 
 	checkout: IRouterMatcher<express.Application>;
 	connect: IRouterMatcher<express.Application>;
