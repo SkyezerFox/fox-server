@@ -1,8 +1,6 @@
-/// <reference types="node" />
-import { EventEmitter } from "events";
 import { default as express, IRouterMatcher } from "express";
 import { Server } from "../Server";
-export declare interface RESTServer extends EventEmitter {
+export declare interface RESTServer {
     server: Server;
     express: express.Application;
     checkout: IRouterMatcher<express.Application>;
@@ -37,15 +35,10 @@ export declare interface RESTServer extends EventEmitter {
     unsubscribe: IRouterMatcher<express.Application>;
     use: typeof express.application.use;
 }
-export declare interface RESTServer extends EventEmitter {
-    on(eventName: "debug", listener: (msg: string) => any): this;
-    on(eventName: "ready", listener: () => any): this;
-    on(eventName: "http", listener: (msg: string) => any): this;
-}
 /**
  * Class for representing the server that handles HTTP REST client requests.
  */
-export declare class RESTServer extends EventEmitter {
+export declare class RESTServer {
     server: Server;
     express: express.Application;
     constructor(server: Server);
@@ -54,9 +47,14 @@ export declare class RESTServer extends EventEmitter {
      */
     init(): this;
     /**
-     * Create a router to use for the server.
-     * @param {String} path - Path to use for the handler
+     * Utility function for accessing server properties.
      * @param {Function} routerCreator - Function that creates the router
      */
-    withServer(...definitions: [string, (server: Server) => express.Router][] | [string, (server: Server) => express.Router]): void;
+    withServer(...handles: Array<(server: this) => any>): void;
+    /**
+     * Utility function for easily creating routers with access to the server class.
+     * @param {String} path Path the router should hook to
+     * @param {Funciton} handle Router handle function
+     */
+    withRouter(path: string, handle: (server: this) => express.Router): void;
 }

@@ -1,5 +1,6 @@
-import { EventEmitter } from "events";
+import { default as chalk } from "chalk";
 import * as http from "http";
+import { default as ora } from "ora";
 
 import { SocketServer } from "./gateway/SocketServer";
 import { RESTServer } from "./rest/RESTServer";
@@ -17,15 +18,8 @@ import { getCurrentHash } from "./util/git";
  */
 export interface ServerOptions {
 	debug: "debug" | "verbose" | "info";
+	disableWinston: boolean;
 	port: number;
-}
-
-export declare interface Server extends EventEmitter {
-	on(eventName: "debug", listener: (msg: string) => any): this;
-	on(eventName: "ready", listener: () => any): this;
-	on(eventName: "http", listener: (msg: string) => any): this;
-	on(eventName: "ws", listener: (msg: string) => any): this;
-	on(eventName: "exit", listener: () => any): this;
 }
 
 /**
@@ -33,22 +27,20 @@ export declare interface Server extends EventEmitter {
  *
  * @property {ServerOptions} options - Options to use when listening
  */
-export class Server<
-	T extends ServerOptions = ServerOptions
-> extends EventEmitter {
+export class Server<T extends ServerOptions = ServerOptions> {
 	public options: T;
 
+	public http: http.Server;
 	public rest: RESTServer;
 	public ws: SocketServer;
 
-	public http: http.Server;
+	public beforeStartTasks: ((server: Server) => any)[];
 
 	constructor(options?: Partial<T>) {
-		super();
-
 		this.options = Object.assign(
 			{
 				debug: "info",
+				disableWinston: false,
 				port: 8080,
 			},
 			options
@@ -61,47 +53,88 @@ export class Server<
 		this.rest = new RESTServer(this);
 		this.ws = new SocketServer(this);
 
-		this.rest
-			.on("debug", (msg) => this.emit("debug", msg))
-			.on("http", (msg) => this.emit("http", msg));
+		this.http.on("error", (err) =>
+			console.log(
+				`${chalk.magentaBright("http")} ${chalk.redBright(
+					"error"
+				)} ${err}`
+			)
+		);
 
-		this.ws
-			.on("debug", (msg) => this.emit("debug", msg))
-			.on("ws", (msg) => this.emit("http", msg));
+		// process.on("exit", () => this.stop()).on("SIGTERM", () => this.stop());
 
-		process.on("exit", () => this.stop()).on("SIGTERM", () => this.stop());
+		this.beforeStartTasks = [];
 	}
 
 	/**
 	 * Start the server.
 	 */
 	public async start() {
-		this.emit(
-			"debug",
-			`[server] running on commit "${await getCurrentHash()}"`
+		console.log(
+			`⯈ ${chalk.yellowBright(
+				"fox-server"
+			)} on "${await getCurrentHash()}" :3\n⯈ ${chalk.cyanBright(
+				"Preparing to bark..."
+			)}\n`
 		);
+
+		let spinner = ora({
+			spinner: "dots",
+		}).start("Attaching rest hooks...");
 
 		this.rest.init();
 
-		this.emit("debug", `[http] listening on port "${this.options.port}".`);
+		spinner.text = "Starting HTTP server...";
 		this.http.listen(this.options.port);
 
+		spinner.text = "Telling the socket server to initialize...";
 		await this.ws.init();
 
-		this.emit("ready");
+		spinner.succeed("Server ready.");
+		spinner.start(`${chalk.cyanBright("Running startup tasks")}`);
+
+		for (let i = 0; i < this.beforeStartTasks.length; i++) {
+			const task = this.beforeStartTasks[i];
+
+			spinner.text = `${chalk.cyanBright(
+				"Running startup tasks"
+			)} - ${task.name || "anonymous"}`;
+
+			try {
+				await task(this);
+			} catch (err) {
+				spinner.stopAndPersist({
+					symbol: chalk.redBright("error"),
+					text: `Error in task ${i} "${task.name || "anonymous"}".`,
+				});
+
+				console.error(err);
+
+				spinner.start(
+					`[${i + 2}/${this.beforeStartTasks.length}] ${task.name ||
+						"anonymous"}`
+				);
+			}
+		}
+
+		spinner.succeed("Background tasks complete.\n");
+
+		console.log(
+			`⯈ ${chalk.yellow("BARK!!!")} - Listening on port ${
+				this.options.port
+			}.\n`
+		);
 	}
 
 	/**
 	 * Stop the server.
 	 */
 	public async stop() {
-		this.emit("stop");
-
 		await this.ws.close();
-
-		this.emit("debug", "[http] closing the HTTP server...");
 		this.http.close();
+	}
 
-		this.emit("exit");
+	public async task(taskFunction: (...args: any[]) => any) {
+		this.beforeStartTasks.push(taskFunction);
 	}
 }

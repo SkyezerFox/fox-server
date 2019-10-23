@@ -1,3 +1,4 @@
+import { default as chalk } from "chalk";
 import { EventEmitter } from "events";
 import { default as express, Handler, IRouterMatcher, Router } from "express";
 import * as http from "http";
@@ -6,7 +7,7 @@ import { default as morgan } from "morgan";
 import { Server } from "../Server";
 import { NotFound } from "./errors";
 
-export declare interface RESTServer extends EventEmitter {
+export declare interface RESTServer {
 	server: Server;
 	express: express.Application;
 
@@ -44,23 +45,15 @@ export declare interface RESTServer extends EventEmitter {
 	use: typeof express.application.use;
 }
 
-export declare interface RESTServer extends EventEmitter {
-	on(eventName: "debug", listener: (msg: string) => any): this;
-	on(eventName: "ready", listener: () => any): this;
-	on(eventName: "http", listener: (msg: string) => any): this;
-}
-
 /**
  * Class for representing the server that handles HTTP REST client requests.
  */
-export class RESTServer extends EventEmitter {
+export class RESTServer {
 	public server: Server;
 
 	public express: express.Application;
 
 	constructor(server: Server) {
-		super();
-
 		this.server = server;
 
 		this.express = express();
@@ -88,12 +81,12 @@ export class RESTServer extends EventEmitter {
 		this.use = this.express.use.bind(this.express);
 
 		// Bind requests to the logger, so we can get debug information
-		this.use(
-			morgan(this.server.options.debug === "debug" ? "common" : "dev", {
+		this.express.use(
+			morgan("common", {
 				stream: {
 					write: (info: string) => {
 						info = info.replace(/(\r\n\t|\n|\r\t)/g, "");
-						this.emit("http", info);
+						console.log(`${chalk.cyanBright("http")} ${info}`);
 					},
 				},
 			})
@@ -107,36 +100,23 @@ export class RESTServer extends EventEmitter {
 		this.express.use("*", (req, res) => NotFound(res));
 		this.server.http = http.createServer(this.express);
 
-		this.emit("debug", `[rest] http hooks attached.`);
-
 		return this;
 	}
 
 	/**
-	 * Create a router to use for the server.
-	 * @param {String} path - Path to use for the handler
+	 * Utility function for accessing server properties.
 	 * @param {Function} routerCreator - Function that creates the router
 	 */
-	public withServer(
-		...definitions:
-			| [string, (server: Server) => express.Router][]
-			| [string, (server: Server) => express.Router]
-	) {
-		if (typeof definitions[0] === "string") {
-			definitions = definitions as [
-				string,
-				(server: Server) => express.Router
-			];
-			this.use(definitions[0], definitions[1](this.server));
-		} else {
-			definitions = definitions as [
-				string,
-				(server: Server) => express.Router
-			][];
-			definitions.forEach(
-				(def: [string, (server: Server) => express.Router]) =>
-					this.use(def[0], def[1](this.server))
-			);
-		}
+	public withServer(...handles: Array<(server: this) => any>) {
+		handles.forEach((handle) => handle(this));
+	}
+
+	/**
+	 * Utility function for easily creating routers with access to the server class.
+	 * @param {String} path Path the router should hook to
+	 * @param {Funciton} handle Router handle function
+	 */
+	public withRouter(path: string, handle: (server: this) => express.Router) {
+		this.use(path, handle(this));
 	}
 }

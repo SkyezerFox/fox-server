@@ -1,5 +1,3 @@
-/// <reference types="node" />
-import { EventEmitter } from "events";
 import * as http from "http";
 import { SocketServer } from "./gateway/SocketServer";
 import { RESTServer } from "./rest/RESTServer";
@@ -15,25 +13,20 @@ import { RESTServer } from "./rest/RESTServer";
  */
 export interface ServerOptions {
     debug: "debug" | "verbose" | "info";
+    disableWinston: boolean;
     port: number;
-}
-export declare interface Server extends EventEmitter {
-    on(eventName: "debug", listener: (msg: string) => any): this;
-    on(eventName: "ready", listener: () => any): this;
-    on(eventName: "http", listener: (msg: string) => any): this;
-    on(eventName: "ws", listener: (msg: string) => any): this;
-    on(eventName: "exit", listener: () => any): this;
 }
 /**
  * Structure that represents the API HTTP REST server.
  *
  * @property {ServerOptions} options - Options to use when listening
  */
-export declare class Server<T extends ServerOptions = ServerOptions> extends EventEmitter {
+export declare class Server<T extends ServerOptions = ServerOptions> {
     options: T;
+    http: http.Server;
     rest: RESTServer;
     ws: SocketServer;
-    http: http.Server;
+    beforeStartTasks: ((server: Server) => any)[];
     constructor(options?: Partial<T>);
     /**
      * Start the server.
@@ -43,4 +36,5 @@ export declare class Server<T extends ServerOptions = ServerOptions> extends Eve
      * Stop the server.
      */
     stop(): Promise<void>;
+    task(taskFunction: (...args: any[]) => any): Promise<void>;
 }

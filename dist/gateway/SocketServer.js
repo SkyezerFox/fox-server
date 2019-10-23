@@ -7,14 +7,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const events_1 = require("events");
 const WebSocket = __importStar(require("ws"));
 /**
  * Class for representing the socket server used for dynamic UI updates by the client.
  */
-class SocketServer extends events_1.EventEmitter {
+class SocketServer {
     constructor(server) {
-        super();
         this.server = server;
         this.connections = new Map();
     }
@@ -22,7 +20,6 @@ class SocketServer extends events_1.EventEmitter {
      * Initialize the socket server and start listening for socket connections.
      */
     async init() {
-        this.emit("debug", "[ws] initializing socket server...");
         this.ws = new WebSocket.Server({
             path: "/gateway",
             server: this.server.http,
@@ -34,13 +31,12 @@ class SocketServer extends events_1.EventEmitter {
                     s: s,
                 });
             }
-            s.on("close", (c, r) => this.emit("ws", `[ws] CLOSE ${rq.connection.remoteAddress ||
+            s.on("close", (c, r) => console.log("ws", `[ws] CLOSE ${rq.connection.remoteAddress ||
                 "unknown"} ${c} - ${r}`));
         });
         return new Promise((r, rs) => {
             if (this.ws) {
-                this.ws.on("listening", () => {
-                    this.emit("ready");
+                this.ws.once("listening", () => {
                     r(true);
                 });
             }
@@ -53,7 +49,6 @@ class SocketServer extends events_1.EventEmitter {
      * Close the socket server and stop listening/close socket connections.
      */
     async close() {
-        this.emit("debug", "[ws] Closing the socket server...");
         if (this.ws) {
             this.ws.close();
         }

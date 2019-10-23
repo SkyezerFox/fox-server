@@ -1,4 +1,4 @@
 /**
  * Get the current git repo hash.
  */
-export declare const getCurrentHash: () => Promise<unknown>;
+export declare const getCurrentHash: () => Promise<{}>;

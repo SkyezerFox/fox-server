@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -7,8 +10,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const events_1 = require("events");
+const chalk_1 = __importDefault(require("chalk"));
 const http = __importStar(require("http"));
+const ora_1 = __importDefault(require("ora"));
 const SocketServer_1 = require("./gateway/SocketServer");
 const RESTServer_1 = require("./rest/RESTServer");
 const git_1 = require("./util/git");
@@ -17,45 +21,64 @@ const git_1 = require("./util/git");
  *
  * @property {ServerOptions} options - Options to use when listening
  */
-class Server extends events_1.EventEmitter {
+class Server {
     constructor(options) {
-        super();
         this.options = Object.assign({
             debug: "info",
+            disableWinston: false,
             port: 8080,
         }, options);
         // Create REST and Socket servers
         this.http = http.createServer();
         this.rest = new RESTServer_1.RESTServer(this);
         this.ws = new SocketServer_1.SocketServer(this);
-        this.rest
-            .on("debug", (msg) => this.emit("debug", msg))
-            .on("http", (msg) => this.emit("http", msg));
-        this.ws
-            .on("debug", (msg) => this.emit("debug", msg))
-            .on("ws", (msg) => this.emit("http", msg));
-        process.on("exit", () => this.stop()).on("SIGTERM", () => this.stop());
+        this.http.on("error", (err) => console.log(`${chalk_1.default.magentaBright("http")} ${chalk_1.default.redBright("error")} ${err}`));
+        // process.on("exit", () => this.stop()).on("SIGTERM", () => this.stop());
+        this.beforeStartTasks = [];
     }
     /**
      * Start the server.
      */
     async start() {
-        this.emit("debug", `[server] running on commit "${await git_1.getCurrentHash()}"`);
+        console.log(`⯈ ${chalk_1.default.yellowBright("fox-server")} on "${await git_1.getCurrentHash()}" :3\n⯈ ${chalk_1.default.cyanBright("Preparing to bark...")}\n`);
+        let spinner = ora_1.default({
+            spinner: "dots",
+        }).start("Attaching rest hooks...");
         this.rest.init();
-        this.emit("debug", `[http] listening on port "${this.options.port}".`);
+        spinner.text = "Starting HTTP server...";
         this.http.listen(this.options.port);
+        spinner.text = "Telling the socket server to initialize...";
         await this.ws.init();
-        this.emit("ready");
+        spinner.succeed("Server ready.");
+        spinner.start(`${chalk_1.default.cyanBright("Running startup tasks")}`);
+        for (let i = 0; i < this.beforeStartTasks.length; i++) {
+            const task = this.beforeStartTasks[i];
+            spinner.text = `${chalk_1.default.cyanBright("Running startup tasks")} - ${task.name || "anonymous"}`;
+            try {
+                await task(this);
+            }
+            catch (err) {
+                spinner.stopAndPersist({
+                    symbol: chalk_1.default.redBright("error"),
+                    text: `Error in task ${i} "${task.name || "anonymous"}".`,
+                });
+                console.error(err);
+                spinner.start(`[${i + 2}/${this.beforeStartTasks.length}] ${task.name ||
+                    "anonymous"}`);
+            }
+        }
+        spinner.succeed("Background tasks complete.\n");
+        console.log(`⯈ ${chalk_1.default.yellow("BARK!!!")} - Listening on port ${this.options.port}.\n`);
     }
     /**
      * Stop the server.
      */
     async stop() {
-        this.emit("stop");
         await this.ws.close();
-        this.emit("debug", "[http] closing the HTTP server...");
         this.http.close();
-        this.emit("exit");
+    }
+    async task(taskFunction) {
+        this.beforeStartTasks.push(taskFunction);
     }
 }
 exports.Server = Server;
