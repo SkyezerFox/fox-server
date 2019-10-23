@@ -8,7 +8,6 @@
 		"esModuleInterop": true,
 
 		"declaration": true,
-		"declarationDir": "@types",
 
 		"outDir": "dist"
 	},

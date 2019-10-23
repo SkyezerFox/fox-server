@@ -5,7 +5,7 @@
 ## Features
 
 -   Morgan HTTP logging
--   Custom WS event loggign
+-   Custom WS event logging
 
 ## Usage
 

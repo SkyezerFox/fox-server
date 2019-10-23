@@ -26,6 +26,5 @@
 		"typescript": "^3.4.3"
 	},
 	"main": "dist/index.js",
-	"types": "types/index.d.ts",
 	"author": "orifoxx <actuallyori@gmail.com>"
 }
