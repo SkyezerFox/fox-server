@@ -1,11 +1,12 @@
 import { default as chalk } from "chalk";
 import * as http from "http";
 import { default as ora } from "ora";
+import * as winston from "winston";
 
 import { SocketServer } from "./gateway/SocketServer";
 import { RESTServer } from "./rest/RESTServer";
 import { getCurrentHash, getCurrentTag } from "./util/git";
-import { charLog } from "./util/logging";
+import { charLog, createLoggerWithPrefix } from "./util/logging";
 
 /**
  * Options to use for the server during runtime.
@@ -35,6 +36,8 @@ export class Server<T extends ServerOptions = ServerOptions> {
 	public rest: RESTServer;
 	public ws: SocketServer;
 
+	public logger: winston.Logger;
+
 	public beforeStartTasks: ((server: Server) => any)[];
 
 	constructor(options?: Partial<T>) {
@@ -63,6 +66,8 @@ export class Server<T extends ServerOptions = ServerOptions> {
 		);
 
 		// process.on("exit", () => this.stop()).on("SIGTERM", () => this.stop());
+
+		this.logger = createLoggerWithPrefix();
 
 		this.beforeStartTasks = [];
 	}

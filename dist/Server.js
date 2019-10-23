@@ -35,6 +35,7 @@ class Server {
         this.ws = new SocketServer_1.SocketServer(this);
         this.http.on("error", (err) => console.log(`${chalk_1.default.magentaBright("http")} ${chalk_1.default.redBright("error")} ${err}`));
         // process.on("exit", () => this.stop()).on("SIGTERM", () => this.stop());
+        this.logger = logging_1.createLoggerWithPrefix();
         this.beforeStartTasks = [];
     }
     /**

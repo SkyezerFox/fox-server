@@ -6,8 +6,7 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "tsc --build tsconfig.json",
-		"test": "mocha -r ts-node/register tests/*.ts",
-		"postinstall": "npm run build"
+		"test": "mocha -r ts-node/register tests/*.ts"
 	},
 	"dependencies": {
 		"chalk": "^2.4.2",

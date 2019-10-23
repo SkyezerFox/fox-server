@@ -1,4 +1,5 @@
 import * as http from "http";
+import * as winston from "winston";
 import { SocketServer } from "./gateway/SocketServer";
 import { RESTServer } from "./rest/RESTServer";
 /**
@@ -26,6 +27,7 @@ export declare class Server<T extends ServerOptions = ServerOptions> {
     http: http.Server;
     rest: RESTServer;
     ws: SocketServer;
+    logger: winston.Logger;
     beforeStartTasks: ((server: Server) => any)[];
     constructor(options?: Partial<T>);
     /**

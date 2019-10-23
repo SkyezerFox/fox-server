@@ -1,4 +1,5 @@
 import { IncomingMessage } from "http";
+import * as winston from "winston";
 import * as WebSocket from "ws";
 import { Server } from "../Server";
 /**
@@ -7,6 +8,7 @@ import { Server } from "../Server";
 export declare class SocketServer {
     server: Server;
     ws?: WebSocket.Server;
+    logger: winston.Logger;
     connections: Map<string, {
         rq: IncomingMessage;
         s: WebSocket;

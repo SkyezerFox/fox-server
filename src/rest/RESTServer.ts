@@ -1,10 +1,11 @@
 import { default as chalk } from "chalk";
-import { EventEmitter } from "events";
-import { default as express, Handler, IRouterMatcher, Router } from "express";
+import { default as express, IRouterMatcher } from "express";
 import * as http from "http";
 import { default as morgan } from "morgan";
+import * as winston from "winston";
 
 import { Server } from "../Server";
+import { createLoggerWithPrefix } from "../util/logging";
 import { NotFound } from "./errors";
 
 export declare interface RESTServer {
@@ -50,13 +51,14 @@ export declare interface RESTServer {
  */
 export class RESTServer {
 	public server: Server;
-
 	public express: express.Application;
+	public logger: winston.Logger;
 
 	constructor(server: Server) {
 		this.server = server;
-
 		this.express = express();
+
+		this.logger = createLoggerWithPrefix(chalk.blueBright("http"));
 
 		// Iterate through HTTP methods and create functions for them.
 		http.METHODS.forEach((method) => {
@@ -81,12 +83,12 @@ export class RESTServer {
 		this.use = this.express.use.bind(this.express);
 
 		// Bind requests to the logger, so we can get debug information
-		this.express.use(
+		this.use(
 			morgan("common", {
 				stream: {
 					write: (info: string) => {
 						info = info.replace(/(\r\n\t|\n|\r\t)/g, "");
-						console.log(`${chalk.cyanBright("http")} ${info}`);
+						this.logger.info(info);
 					},
 				},
 			})

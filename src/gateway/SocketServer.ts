@@ -1,8 +1,10 @@
-import { EventEmitter } from "events";
+import { default as chalk } from "chalk";
 import { IncomingMessage } from "http";
+import * as winston from "winston";
 import * as WebSocket from "ws";
 
 import { Server } from "../Server";
+import { createLoggerWithPrefix } from "../util/logging";
 
 /**
  * Class for representing the socket server used for dynamic UI updates by the client.
@@ -11,10 +13,14 @@ export class SocketServer {
 	public server: Server;
 	public ws?: WebSocket.Server;
 
+	public logger: winston.Logger;
+
 	public connections: Map<string, { rq: IncomingMessage; s: WebSocket }>;
 
 	constructor(server: Server) {
 		this.server = server;
+
+		this.logger = createLoggerWithPrefix(chalk.yellow("ws"));
 
 		this.connections = new Map();
 	}

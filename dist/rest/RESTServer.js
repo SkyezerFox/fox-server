@@ -14,6 +14,7 @@ const chalk_1 = __importDefault(require("chalk"));
 const express_1 = __importDefault(require("express"));
 const http = __importStar(require("http"));
 const morgan_1 = __importDefault(require("morgan"));
+const logging_1 = require("../util/logging");
 const errors_1 = require("./errors");
 /**
  * Class for representing the server that handles HTTP REST client requests.
@@ -22,6 +23,7 @@ class RESTServer {
     constructor(server) {
         this.server = server;
         this.express = express_1.default();
+        this.logger = logging_1.createLoggerWithPrefix(chalk_1.default.blueBright("http"));
         // Iterate through HTTP methods and create functions for them.
         http.METHODS.forEach((method) => {
             const requestHandlerFunction = this.express[method.toLowerCase()];
@@ -32,11 +34,11 @@ class RESTServer {
         // Copy the use function to the server class.
         this.use = this.express.use.bind(this.express);
         // Bind requests to the logger, so we can get debug information
-        this.express.use(morgan_1.default("common", {
+        this.use(morgan_1.default("common", {
             stream: {
                 write: (info) => {
                     info = info.replace(/(\r\n\t|\n|\r\t)/g, "");
-                    console.log(`${chalk_1.default.cyanBright("http")} ${info}`);
+                    this.logger.info(info);
                 },
             },
         }));
