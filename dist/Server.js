@@ -16,6 +16,7 @@ const ora_1 = __importDefault(require("ora"));
 const SocketServer_1 = require("./gateway/SocketServer");
 const RESTServer_1 = require("./rest/RESTServer");
 const git_1 = require("./util/git");
+const logging_1 = require("./util/logging");
 /**
  * Structure that represents the API HTTP REST server.
  *
@@ -40,7 +41,8 @@ class Server {
      * Start the server.
      */
     async start() {
-        console.log(`⯈ ${chalk_1.default.yellowBright("fox-server")} on "${await git_1.getCurrentHash()}" :3\n⯈ ${chalk_1.default.cyanBright("Preparing to bark...")}\n`);
+        logging_1.charLog(`${chalk_1.default.yellowBright("fox-server")} ${chalk_1.default.greenBright(await git_1.getCurrentTag())} ${chalk_1.default.grey(`on "${await git_1.getCurrentHash()}"`)} :3`);
+        logging_1.charLog(chalk_1.default.cyanBright("Preparing to bark...\n"));
         let spinner = ora_1.default({
             spinner: "dots",
         }).start("Attaching rest hooks...");
@@ -68,7 +70,7 @@ class Server {
             }
         }
         spinner.succeed("Background tasks complete.\n");
-        console.log(`⯈ ${chalk_1.default.yellow("BARK!!!")} - Listening on port ${this.options.port}.\n`);
+        logging_1.charLog(`${chalk_1.default.yellow("BARK!!!")} - Listening on port ${this.options.port}.\n`);
     }
     /**
      * Stop the server.

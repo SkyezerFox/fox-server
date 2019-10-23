@@ -4,7 +4,8 @@ import { default as ora } from "ora";
 
 import { SocketServer } from "./gateway/SocketServer";
 import { RESTServer } from "./rest/RESTServer";
-import { getCurrentHash } from "./util/git";
+import { getCurrentHash, getCurrentTag } from "./util/git";
+import { charLog } from "./util/logging";
 
 /**
  * Options to use for the server during runtime.
@@ -70,13 +71,12 @@ export class Server<T extends ServerOptions = ServerOptions> {
 	 * Start the server.
 	 */
 	public async start() {
-		console.log(
-			`⯈ ${chalk.yellowBright(
-				"fox-server"
-			)} on "${await getCurrentHash()}" :3\n⯈ ${chalk.cyanBright(
-				"Preparing to bark..."
-			)}\n`
+		charLog(
+			`${chalk.yellowBright("fox-server")} ${chalk.greenBright(
+				await getCurrentTag()
+			)} ${chalk.grey(`on "${await getCurrentHash()}"`)} :3`
 		);
+		charLog(chalk.cyanBright("Preparing to bark...\n"));
 
 		let spinner = ora({
 			spinner: "dots",
@@ -119,8 +119,8 @@ export class Server<T extends ServerOptions = ServerOptions> {
 
 		spinner.succeed("Background tasks complete.\n");
 
-		console.log(
-			`⯈ ${chalk.yellow("BARK!!!")} - Listening on port ${
+		charLog(
+			`${chalk.yellow("BARK!!!")} - Listening on port ${
 				this.options.port
 			}.\n`
 		);

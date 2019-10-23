@@ -12,3 +12,14 @@ exports.getCurrentHash = () => {
         return res(stdout.slice(0, 7));
     }));
 };
+/**
+ * Get the current git tag.
+ */
+exports.getCurrentTag = () => {
+    return new Promise((res) => child_process_1.exec("git describe --tags --abbrev=0", (err, stdout) => {
+        if (err || stdout.startsWith("fatal")) {
+            return res("unknown");
+        }
+        return res(stdout.replace(/\n/, ""));
+    }));
+};
