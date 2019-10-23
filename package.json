@@ -1,7 +1,7 @@
 {
 	"name": "fox-server",
 	"description": "A backend template with REST API and websocket gateway functionality.",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"repository": "https://github.com/orifoxx/fox-server/",
 	"license": "MIT",
 	"scripts": {

@@ -17,5 +17,6 @@ exports.createLoggerWithPrefix = (prefix = "") => winston.createLogger({
     format: winston.format.combine(winston.format.colorize(), winston.format.printf(({ level, message }) => {
         return `${prefix} ${level} ${message}`;
     })),
+    level: "debug",
     transports: new winston.transports.Console(),
 });

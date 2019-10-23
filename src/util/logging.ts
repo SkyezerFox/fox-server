@@ -12,5 +12,6 @@ export const createLoggerWithPrefix = (prefix: string = "") =>
 				return `${prefix} ${level} ${message}`;
 			})
 		),
+		level: "debug",
 		transports: new winston.transports.Console(),
 	});
