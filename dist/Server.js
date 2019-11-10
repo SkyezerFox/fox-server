@@ -96,7 +96,10 @@ class Server {
         console.log("");
     }
     async _start() {
-        let spinner = ora_1.default({ spinner: "dots", text: "Starting server..." });
+        let spinner = ora_1.default({
+            spinner: "dots",
+            text: "Starting server...",
+        });
         if (this.beforeStartTasks.length > 0) {
             spinner.start(safe_1.default.blue("beforeStartupTasks"));
             await this._iterateOverTasks(spinner, this.beforeStartTasks);
@@ -148,8 +151,21 @@ class Server {
         await this.ws.close();
         this.http.close();
     }
-    async task(...taskFunctions) {
+    /**
+     * Add tasks to run before the server starts.
+     * @param taskFunctions
+     */
+    before(...taskFunctions) {
         this.beforeStartTasks = this.beforeStartTasks.concat(taskFunctions);
+        return this;
+    }
+    /**
+     * Add tasks to run after the server has begun listening.
+     * @param taskFunctions
+     */
+    after(...taskFunctions) {
+        this.afterStartTasks = this.afterStartTasks.concat(taskFunctions);
+        return this;
     }
 }
 exports.Server = Server;

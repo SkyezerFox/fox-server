@@ -57,5 +57,14 @@ export declare class Server<T extends ServerOptions = ServerOptions> {
      * Stop the server.
      */
     stop(): Promise<void>;
-    task(...taskFunctions: Array<(server: Server<T>, ...args: any[]) => any>): Promise<void>;
+    /**
+     * Add tasks to run before the server starts.
+     * @param taskFunctions
+     */
+    before(...taskFunctions: Array<(server: Server<T>, ...args: any[]) => any>): this;
+    /**
+     * Add tasks to run after the server has begun listening.
+     * @param taskFunctions
+     */
+    after(...taskFunctions: Array<(server: Server<T>, ...args: any[]) => any>): this;
 }
