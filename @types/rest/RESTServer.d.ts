@@ -2,7 +2,7 @@ import { default as express, IRouterMatcher } from "express";
 import * as winston from "winston";
 import { Server } from "../Server";
 export declare interface RESTServer {
-    server: Server;
+    server: Server<any>;
     express: express.Application;
     logger: winston.Logger;
     checkout: IRouterMatcher<express.Application>;
@@ -41,10 +41,10 @@ export declare interface RESTServer {
  * Class for representing the server that handles HTTP REST client requests.
  */
 export declare class RESTServer {
-    server: Server;
+    server: Server<any>;
     express: express.Application;
     logger: winston.Logger;
-    constructor(server: Server);
+    constructor(server: Server<any>);
     /**
      * Open the server and start listening for requests.
      */

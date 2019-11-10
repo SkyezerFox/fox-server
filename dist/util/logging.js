@@ -12,7 +12,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const chalk_1 = __importDefault(require("chalk"));
 const winston = __importStar(require("winston"));
-exports.charLog = (...msg) => console.log(chalk_1.default.grey("⯈"), ...msg);
+exports.charLog = (...msg) => console.log(chalk_1.default.grey("▶"), ...msg);
 exports.createLoggerWithPrefix = (prefix = "") => winston.createLogger({
     format: winston.format.combine(winston.format.colorize(), winston.format.printf(({ level, message }) => {
         return `${prefix} ${level} ${message}`;

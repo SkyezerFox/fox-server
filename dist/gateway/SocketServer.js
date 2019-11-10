@@ -21,11 +21,12 @@ class SocketServer {
         this.server = server;
         this.logger = logging_1.createLoggerWithPrefix(safe_1.default.yellow("ws"));
         this.connections = new Map();
+        this.connected = false;
     }
     /**
      * Initialize the socket server and start listening for socket connections.
      */
-    async init() {
+    init() {
         this.ws = new WebSocket.Server({
             path: "/gateway",
             server: this.server.http,
@@ -39,16 +40,6 @@ class SocketServer {
             }
             s.on("close", (c, r) => console.log("ws", `[ws] CLOSE ${rq.connection.remoteAddress ||
                 "unknown"} ${c} - ${r}`));
-        });
-        return new Promise((r, rs) => {
-            if (this.ws) {
-                this.ws.once("listening", () => {
-                    r(true);
-                });
-            }
-            else {
-                rs(false);
-            }
         });
     }
     /**

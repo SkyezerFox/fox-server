@@ -5,6 +5,7 @@ import * as winston from "winston";
 
 import { SocketServer } from "./gateway/SocketServer";
 import { RESTServer } from "./rest/RESTServer";
+import { checkVersion } from "./util/checkVersion";
 import { charLog, createLoggerWithPrefix } from "./util/logging";
 
 /**
@@ -21,6 +22,7 @@ export interface ServerOptions {
 	debug: "debug" | "verbose" | "info";
 	disableWinston: boolean;
 	disableAnimations: boolean;
+	versionChecking: boolean;
 	port: number;
 }
 
@@ -50,6 +52,7 @@ export class Server<T extends ServerOptions = ServerOptions> {
 				disableWinston: false,
 				disableAnimations: process.platform === "win32",
 				port: 8080,
+				versionChecking: true,
 			},
 			options
 		) as T;
@@ -205,7 +208,9 @@ export class Server<T extends ServerOptions = ServerOptions> {
 	public async start() {
 		console.log(
 			`\n${colors.yellow("fox-server")} ${colors.green(
-				`v${require("../package.json").version}`
+				`v${require("../package.json").version} ${
+					this.options.versionChecking ? await checkVersion() : ""
+				}`
 			)}\n`
 		);
 
