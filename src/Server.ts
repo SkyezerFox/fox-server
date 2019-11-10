@@ -165,7 +165,10 @@ export class Server<T extends ServerOptions = ServerOptions> {
 	}
 
 	private async _start() {
-		let spinner = ora({ spinner: "dots", text: "Starting server..." });
+		let spinner = ora({
+			spinner: "dots",
+			text: "Starting server...",
+		});
 
 		if (this.beforeStartTasks.length > 0) {
 			spinner.start(colors.blue("beforeStartupTasks"));
@@ -239,9 +242,25 @@ export class Server<T extends ServerOptions = ServerOptions> {
 		this.http.close();
 	}
 
-	public async task(
+	/**
+	 * Add tasks to run before the server starts.
+	 * @param taskFunctions
+	 */
+	public before(
 		...taskFunctions: Array<(server: Server<T>, ...args: any[]) => any>
 	) {
 		this.beforeStartTasks = this.beforeStartTasks.concat(taskFunctions);
+		return this;
+	}
+
+	/**
+	 * Add tasks to run after the server has begun listening.
+	 * @param taskFunctions
+	 */
+	public after(
+		...taskFunctions: Array<(server: Server<T>, ...args: any[]) => any>
+	) {
+		this.afterStartTasks = this.afterStartTasks.concat(taskFunctions);
+		return this;
 	}
 }
