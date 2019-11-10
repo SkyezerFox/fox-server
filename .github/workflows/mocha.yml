@@ -23,6 +23,7 @@ jobs:
   
     - name: Compile TypeScript
       run: |
+        npm install
         npm ci
         npm run build
       
