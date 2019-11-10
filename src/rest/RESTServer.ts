@@ -9,7 +9,7 @@ import { createLoggerWithPrefix } from "../util/logging";
 import { NotFound } from "./errors";
 
 export declare interface RESTServer {
-	server: Server;
+	server: Server<any>;
 	express: express.Application;
 	logger: winston.Logger;
 
@@ -51,11 +51,11 @@ export declare interface RESTServer {
  * Class for representing the server that handles HTTP REST client requests.
  */
 export class RESTServer {
-	public server: Server;
+	public server: Server<any>;
 	public express: express.Application;
 	public logger: winston.Logger;
 
-	constructor(server: Server) {
+	constructor(server: Server<any>) {
 		this.server = server;
 		this.express = express();
 

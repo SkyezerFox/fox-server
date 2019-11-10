@@ -2,7 +2,7 @@ import { default as chalk } from "chalk";
 import * as winston from "winston";
 
 export const charLog = (...msg: string[]) =>
-	console.log(chalk.grey("⯈"), ...msg);
+	console.log(chalk.grey("▶"), ...msg);
 
 export const createLoggerWithPrefix = (prefix: string = "") =>
 	winston.createLogger({

@@ -10,25 +10,25 @@ import { createLoggerWithPrefix } from "../util/logging";
  * Class for representing the socket server used for dynamic UI updates by the client.
  */
 export class SocketServer {
-	public server: Server;
+	public server: Server<any>;
 	public ws?: WebSocket.Server;
 
 	public logger: winston.Logger;
-
 	public connections: Map<string, { rq: IncomingMessage; s: WebSocket }>;
+	public connected: boolean;
 
-	constructor(server: Server) {
+	constructor(server: Server<any>) {
 		this.server = server;
 
 		this.logger = createLoggerWithPrefix(colors.yellow("ws"));
-
 		this.connections = new Map();
+		this.connected = false;
 	}
 
 	/**
 	 * Initialize the socket server and start listening for socket connections.
 	 */
-	public async init(): Promise<boolean> {
+	public init() {
 		this.ws = new WebSocket.Server({
 			path: "/gateway",
 			server: this.server.http,
@@ -49,16 +49,6 @@ export class SocketServer {
 						"unknown"} ${c} - ${r}`
 				)
 			);
-		});
-
-		return new Promise<boolean>((r, rs) => {
-			if (this.ws) {
-				this.ws.once("listening", () => {
-					r(true);
-				});
-			} else {
-				rs(false);
-			}
 		});
 	}
 

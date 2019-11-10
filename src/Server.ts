@@ -5,7 +5,6 @@ import * as winston from "winston";
 
 import { SocketServer } from "./gateway/SocketServer";
 import { RESTServer } from "./rest/RESTServer";
-import { getCurrentHash, getCurrentTag } from "./util/git";
 import { charLog, createLoggerWithPrefix } from "./util/logging";
 
 /**
@@ -21,6 +20,7 @@ import { charLog, createLoggerWithPrefix } from "./util/logging";
 export interface ServerOptions {
 	debug: "debug" | "verbose" | "info";
 	disableWinston: boolean;
+	disableAnimations: boolean;
 	port: number;
 }
 
@@ -38,13 +38,17 @@ export class Server<T extends ServerOptions = ServerOptions> {
 
 	public logger: winston.Logger;
 
-	public beforeStartTasks: ((server: Server) => any)[];
+	public beforeStartTasks: ((server: Server<T>, ...args: any[]) => any)[];
+	public afterStartTasks: ((server: Server<T>, ...args: any[]) => any)[];
+
+	public serverStartupTasks: ((server: Server<T>, ...args: any[]) => any)[];
 
 	constructor(options?: Partial<T>) {
 		this.options = Object.assign(
 			{
 				debug: "info",
 				disableWinston: false,
+				disableAnimations: process.platform === "win32",
 				port: 8080,
 			},
 			options
@@ -63,70 +67,163 @@ export class Server<T extends ServerOptions = ServerOptions> {
 			)
 		);
 
-		// process.on("exit", () => this.stop()).on("SIGTERM", () => this.stop());
+		process.on("SIGINT", () => {
+			process.exit();
+		});
 
 		this.logger = createLoggerWithPrefix();
 
 		this.beforeStartTasks = [];
+		this.afterStartTasks = [];
+
+		const initializeRestHooks = () => this.rest.init(),
+			initializeHTTPServer = () =>
+				new Promise((r) => this.http.listen(this.options.port, r)),
+			initializeWSServer = () => this.ws.init();
+
+		this.serverStartupTasks = [
+			initializeRestHooks,
+			initializeHTTPServer,
+			initializeWSServer,
+		];
+	}
+
+	/**
+	 * Iterate over a list of tasks.
+	 * @param taskList
+	 */
+	private async _iterateOverTasks(
+		spinner: ora.Ora,
+		taskList: ((server: Server<T>, ...args: any[]) => any)[]
+	) {
+		const taskListName = spinner.text;
+		let errorCount = 0;
+
+		for (let i in taskList) {
+			const task = taskList[i];
+			const taskName = task.name != "" ? task.name : "anonymous";
+
+			spinner.start(`${colors.blue(taskListName)} - ${taskName}`);
+
+			try {
+				await task(this);
+			} catch (err) {
+				if (errorCount === 0) {
+					spinner.stop();
+					console.log("");
+				}
+
+				spinner.fail(
+					`Error in task "${taskName}" (${Number(i) + 1} of ${
+						taskList.length
+					}).`
+				);
+
+				console.error(err + "\n");
+				errorCount += 1;
+			}
+		}
+	}
+
+	/**
+	 * Iterate over a list of tasks without using CLI spinners.
+	 * @param taskList
+	 */
+	private async _iterateOverTasksWithoutAnimation(
+		taskList: ((server: Server<T>, ...args: any[]) => any)[]
+	) {
+		for (let i in taskList) {
+			const task = taskList[i];
+
+			console.log(
+				colors.grey(
+					`[${Number(i) + 1}/${taskList.length}] ` +
+						(task.name !== ""
+							? task.name
+							: "anonymous" || "anonymous")
+				)
+			);
+
+			try {
+				await task(this);
+			} catch (err) {
+				console.error(
+					colors.red("error"),
+					`Error in task "${task.name || "anonymous"}" (${i + 1} of ${
+						taskList.length
+					}).`
+				);
+
+				console.error(err);
+			}
+		}
+
+		console.log("");
+	}
+
+	private async _start() {
+		let spinner = ora({ spinner: "dots", text: "Starting server..." });
+
+		if (this.beforeStartTasks.length > 0) {
+			spinner.start(colors.blue("beforeStartupTasks"));
+			await this._iterateOverTasks(spinner, this.beforeStartTasks);
+			spinner.succeed(colors.blue("beforeStartupTasks"));
+		}
+
+		spinner.start(colors.blue("serverStartupTasks"));
+		await this._iterateOverTasks(spinner, this.serverStartupTasks);
+		spinner.succeed(colors.blue("serverStartupTasks"));
+
+		if (this.afterStartTasks.length > 0) {
+			spinner.start(colors.blue("afterStartupTasks"));
+			await this._iterateOverTasks(spinner, this.afterStartTasks);
+			spinner.succeed(colors.blue("afterStartupTasks"));
+		}
+	}
+
+	/**
+	 * Start the server without using console animations.
+	 */
+	private async _startWithoutAnimations() {
+		if (this.beforeStartTasks.length > 0) {
+			console.log(colors.blue("beforeStartTasks"));
+			await this._iterateOverTasksWithoutAnimation(this.beforeStartTasks);
+		}
+
+		console.log(colors.blue("serverStartupTasks"));
+		await this._iterateOverTasksWithoutAnimation(this.serverStartupTasks);
+
+		if (this.afterStartTasks.length > 0) {
+			console.log(colors.blue("afterStartTasks"));
+			await this._iterateOverTasksWithoutAnimation(this.afterStartTasks);
+		}
 	}
 
 	/**
 	 * Start the server.
 	 */
 	public async start() {
-		charLog(
-			`${colors.yellow("fox-server")} ${colors.green(
-				await getCurrentTag()
-			)} ${colors.grey(`on "${await getCurrentHash()}"`)}`
+		console.log(
+			`\n${colors.yellow("fox-server")} ${colors.green(
+				`v${require("../package.json").version}`
+			)}\n`
 		);
-		charLog(colors.cyan("Preparing to bark...\n"));
 
-		let spinner = ora({
-			spinner: "dots",
-		}).start("Attaching rest hooks...");
+		charLog("Preparing to bark...\n");
 
-		this.rest.init();
-
-		spinner.text = "Starting HTTP server...";
-		this.http.listen(this.options.port);
-
-		spinner.text = "Telling the socket server to initialize...";
-		await this.ws.init();
-
-		spinner.succeed("Server ready.");
-		spinner.start(`${colors.cyan("Running startup tasks")}`);
-
-		for (let i = 0; i < this.beforeStartTasks.length; i++) {
-			const task = this.beforeStartTasks[i];
-
-			spinner.text = `${colors.cyan(
-				"Running startup tasks"
-			)} - ${task.name || "anonymous"}`;
-
-			try {
-				await task(this);
-			} catch (err) {
-				spinner.stopAndPersist({
-					symbol: colors.red("error"),
-					text: `Error in task ${i} "${task.name || "anonymous"}".`,
-				});
-
-				console.error(err);
-
-				spinner.start(
-					`[${i + 2}/${this.beforeStartTasks.length}] ${task.name ||
-						"anonymous"}`
-				);
-			}
+		if (this.options.disableAnimations) {
+			await this._startWithoutAnimations();
+		} else {
+			await this._start();
 		}
 
-		spinner.succeed("Background tasks complete.\n");
-
-		charLog(
-			`${colors.yellow("BARK!!! ^w^")} - Listening on port ${
+		console.log(
+			`\n${colors.yellow("BARK!!! ^w^")} - Listening on port ${
 				this.options.port
 			}.\n`
 		);
+
+		return this;
 	}
 
 	/**
@@ -137,7 +234,9 @@ export class Server<T extends ServerOptions = ServerOptions> {
 		this.http.close();
 	}
 
-	public async task(taskFunction: (...args: any[]) => any) {
-		this.beforeStartTasks.push(taskFunction);
+	public async task(
+		...taskFunctions: Array<(server: Server<T>, ...args: any[]) => any>
+	) {
+		this.beforeStartTasks = this.beforeStartTasks.concat(taskFunctions);
 	}
 }
