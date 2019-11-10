@@ -1,0 +1,33 @@
+name: Mocha Test Suite
+
+on: 
+  push:
+    branches: 
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [8.x, 10.x, 12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install Node v${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+  
+    - name: Compile TypeScript
+      run: |
+        npm ci
+        npm run build
+      
+    - name: Test with Mocha
+      timeout-minutes: 1
+      run: |
+        npm test 
+ 
