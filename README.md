@@ -54,7 +54,7 @@ const server = new FoxServer<MyOptions>({ hello: "world!" });
 
 -   Returns {Promise\<FoxServer\>}
 
-Starts the server, triggering the execution of any functions currently specified using [`before()`][], before initializing the REST and WS servers. Functions registered with [`destroy()`][] will be called once this is complete.
+Starts the server, triggering the execution of any functions specified using [`before()`][], before initializing the REST and WS servers.
 
 ### FoxServer.stop()
 
