@@ -25,7 +25,7 @@ const server = new FoxServer(opts: ServerOptions)
 
 ```
 
-# Class: FoxServer
+## Class: FoxServer
 
 The `FoxServer` is the base class used to represent the compined REST and WS server.
 
