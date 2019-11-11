@@ -18,7 +18,7 @@ const { FoxServer } = require("fox-server");
 
 const server = new FoxServer(opts: ServerOptions)
     .before(
-        () => console.log("Runs before the server begins listening for requiests"),
+        () => console.log("Runs before the server begins listening for requests"),
     ).after(
         () => console.log("Runs after the server has opened"),
     );
