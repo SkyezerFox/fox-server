@@ -54,13 +54,13 @@ const server = new FoxServer<MyOptions>({ hello: "world!" });
 
 -   Returns {Promise\<FoxServer\>}
 
-Starts the server, triggering the execution of any functions specified using [`before()`][], before initializing the REST and WS servers.
+Starts the server, triggering the execution of any functions specified using [`FoxServer.before()`][], before initializing the REST and WS servers.
 
 ### FoxServer.stop()
 
 -   Returns {Promise\<FoxServer\>}
 
-Stops the server, closing the HTTP server and running any functions registered using [`exit()`][].
+Stops the server, closing the HTTP server and running any functions registered using [`FoxServer.exit()`][].
 
 ### FoxServer.before(\...tasks\)
 
@@ -95,13 +95,13 @@ This is practically equivalent to `process.on("SIGTERM", ...)`.
 
 -   {http.Server}
 
-The HTTP server used to handle REST and WS upgrade requests. You can directly modify the HTTP server itself if you so desire.
+The HTTP server used to handle REST and WS upgrade requests. You can directly modify the server itself if you so desire. You can read the documentation for the server object on [NodeJS's official documentation](https://nodejs.org/api/http.html#http_class_http_server/).
 
 ### FoxServer.rest
 
 -   {RESTServer}
 
-The REST endpoint manager used for handling HTTP requests to the server. This uses [express](https://npmjs.com/packages/express) under the hood, which can be directly accessed on the [`express`][] property.
+The REST endpoint manager used for handling HTTP requests to the server. This uses [express](https://npmjs.com/packages/express) under the hood, which can be directly accessed on the [`RESTServer.express`][] property.
 
 ### FoxServer.ws
 
@@ -113,22 +113,56 @@ The SocketServer for handling WS events sent to/from the server. This uses [ws](
 
 -   {Array\<(server: FoxServer) => any\>}
 
-The array of handlers registered using [`before()`][] that get called before server initialization.
+The array of handlers registered using [`FoxServer.before()`][] that get called before server initialization.
 
 ### FoxServer.afterStartTasks
 
 -   {Array\<(server: FoxServer) => any\>}
 
-The array of handlers registered using [`after()`][] that get called before server initialization.
+The array of handlers registered using [`FoxServer.after()`][] that get called before server initialization.
 
 ### FoxServer.exitTasks
 
 -   {Array\<(server: FoxServer) => any\>}
 
-The array of handlers registered using [`exit()`][] that get called before server exit.
+The array of handlers registered using [`FoxServer.exit()`][] that get called before server exit.
 
 ### FoxServer.serverStartupTasks
 
 -   {Array\<(server: FoxServer) => any\>}
 
 The built-in array of tasks performed to initialize the server. **I don't recommend modifying this unless you know what you're doing.**
+
+## Class: RESTServer
+
+The `RESTServer` class handles REST API requests made to the server via HTTP. Requests are handled using [express](https://npmjs.com/package/express) under the hood, having been routed through the HTTP server on [`FoxServer.http`][].
+
+Each instance of the `RESTServer` class has the typical express handling functions (`app.get(() => ...)`, `app.use(() => ...)`) which directly interface with express itself.
+
+### RESTServer.router(path, handle)
+
+-   `path` {String} The path on which to create the router.
+-   `handle` {(server: RESTServer) => express.Router} A function taking the RESTServer object and returning a valid express Router function.
+
+`RESETServer.router()` can be used to create nested express routers that maintain access to the server object itself.
+
+### RESTServer.express
+
+-   {express.Application}
+
+The raw express instance being used to handle requests. This can be directly modified as needed, although using the request functions built into the RESTServer itself is equivalent to modifying this object.
+
+## Class: SocketServer
+
+The `SocketServer` class represents the extended [ws](https://npmjs.com/package/ws) `SocketServer` which handles WebSocket connections and upgrade requests made to the server.
+
+<!-- FoxServer Links -->
+
+[`foxserver.before()`]: #foxserver.before_tasks
+[`foxserver.after()`]: #foxserver.after_tasks
+[`foxserver.exit()`]: #foxserver.exit_tasks
+[`foxserver.http`]: #foxserver.http
+
+<!-- RESTServer Links -->
+
+[`restserver.express`]: #restserver.express

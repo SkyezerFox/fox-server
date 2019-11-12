@@ -42,21 +42,28 @@ describe("Server Instantiation", () => {
 
 		await server.start();
 
+		console.log("boop");
+
 		expect(beforeTask).to.equal(true);
 		expect(afterTask).to.equal(true);
 
-		server.stop();
+		await server.stop();
 
 		return true;
 	});
 });
 
 describe("HTTP server", () => {
+	it("should interface directly with express", () => {
+		let server = new FoxServer({ disableAnimations: true });
+		expect(server.rest.use).to.not.equal(undefined);
+	});
+
 	it("should listen on the specified port", (done) => {
 		const port = 5432;
 
 		let server = new FoxServer({ port, disableAnimations: true });
-		server.rest.express.use("/", (req, res) => res.json({ msg: "uwu" }));
+		server.rest.use("/", (req, res) => res.json({ msg: "uwu" }));
 
 		server
 			.start()
