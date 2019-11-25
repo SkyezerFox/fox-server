@@ -35,12 +35,14 @@ The `FoxServer` is the base class used to represent the compined REST and WS ser
     -   `debug` {"debug" | "verbose" | "info"} Controls the base level of logging that gets outputted to the console. **Default:** `"info"`.
     -   `disableAnimations` {boolean} Prevent the server from using console spinners while loading. By default, this is true on Windows since the feature was very glitchy. **Default:** `false`.
     -   `disableWinston` {boolean} Whether or not to disable winston logging. **Default:** `true`.
+    -   `disableRESTServer` {boolean} Disables the REST server, preventing HTTP requests from being routed. **Default:** `false`.
+    -   `disableSocketServer` {boolean} Disables the socket server, preventing WS upgrade requests from being handled. **Default:** `false`.
     -   `versionChecking` {boolean} By default, each FoxServer instance compares the version on the remote GitHub repository to ensure it's up to date. Normally, this has little impact on load times, but can be disabled by setting this to false. **Default:** `true`.
     -   `port` {number} The port which the server will listen on. This applies both to the REST and WS servers. **Default:** `8080`.
 
 The base server that does all the fun things.
 
-`ServerOptions` can easily be extended to accomodate your needs using type parameters. However, ny options must extend the base `ServerOptions` object.
+`ServerOptions` can easily be extended to accomodate your needs using type parameters. However, any options must extend the base `ServerOptions` object.
 
 ```ts
 interface MyOptions extends ServerOptions {
