@@ -28,6 +28,8 @@ class Server {
             debug: "info",
             disableWinston: false,
             disableAnimations: process.platform === "win32",
+            disableSocketServer: false,
+            disableRESTServer: false,
             port: 8080,
             versionChecking: true,
         }, options);
@@ -43,11 +45,13 @@ class Server {
         this.beforeStartTasks = [];
         this.afterStartTasks = [];
         const initializeRestHooks = () => this.rest.init(), initializeHTTPServer = () => new Promise((r) => this.http.listen(this.options.port, r)), initializeWSServer = () => this.ws.init();
-        this.serverStartupTasks = [
-            initializeRestHooks,
-            initializeHTTPServer,
-            initializeWSServer,
-        ];
+        this.serverStartupTasks = [initializeHTTPServer];
+        if (!this.options.disableRESTServer) {
+            this.serverStartupTasks.push(initializeRestHooks);
+        }
+        if (!this.options.disableSocketServer) {
+            this.serverStartupTasks.push(initializeWSServer);
+        }
     }
     /**
      * Iterate over a list of tasks.
@@ -133,7 +137,7 @@ class Server {
      * Start the server.
      */
     async start() {
-        console.log(`\n${safe_1.default.yellow("fox-server")} ${safe_1.default.green(`v${require("../package.json").version} ${this.options.versionChecking ? await checkVersion_1.checkVersion() : ""}`)}\n`);
+        console.log(`\n${safe_1.default.bold(`${safe_1.default.yellow("fox-server")} ${safe_1.default.green(`v${require("../package.json").version}`)}`)} ${this.options.versionChecking ? await checkVersion_1.checkVersion() : ""}\n`);
         logging_1.charLog("Preparing to bark...\n");
         if (this.options.disableAnimations) {
             await this._startWithoutAnimations();

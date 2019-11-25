@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import * as http from "http";
 import * as winston from "winston";
 import { SocketServer } from "./gateway/SocketServer";
@@ -17,6 +18,8 @@ export interface ServerOptions {
     disableWinston: boolean;
     disableAnimations: boolean;
     versionChecking: boolean;
+    disableSocketServer: boolean;
+    disableRESTServer: boolean;
     port: number;
 }
 /**
