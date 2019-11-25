@@ -42,8 +42,6 @@ describe("Server Instantiation", () => {
 
 		await server.start();
 
-		console.log("boop");
-
 		expect(beforeTask).to.equal(true);
 		expect(afterTask).to.equal(true);
 
