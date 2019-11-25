@@ -23,6 +23,8 @@ export interface ServerOptions {
 	disableWinston: boolean;
 	disableAnimations: boolean;
 	versionChecking: boolean;
+	disableSocketServer: boolean;
+	disableRESTServer: boolean;
 	port: number;
 }
 
@@ -51,6 +53,8 @@ export class Server<T extends ServerOptions = ServerOptions> {
 				debug: "info",
 				disableWinston: false,
 				disableAnimations: process.platform === "win32",
+				disableSocketServer: true,
+				disableRESTServer: true,
 				port: 8080,
 				versionChecking: true,
 			},
@@ -84,11 +88,14 @@ export class Server<T extends ServerOptions = ServerOptions> {
 				new Promise((r) => this.http.listen(this.options.port, r)),
 			initializeWSServer = () => this.ws.init();
 
-		this.serverStartupTasks = [
-			initializeRestHooks,
-			initializeHTTPServer,
-			initializeWSServer,
-		];
+		this.serverStartupTasks = [initializeHTTPServer];
+
+		if (!this.options.disableRESTServer) {
+			this.serverStartupTasks.push(initializeRestHooks);
+		}
+		if (!this.options.disableSocketServer) {
+			this.serverStartupTasks.push(initializeWSServer);
+		}
 	}
 
 	/**
@@ -210,11 +217,11 @@ export class Server<T extends ServerOptions = ServerOptions> {
 	 */
 	public async start() {
 		console.log(
-			`\n${colors.yellow("fox-server")} ${colors.green(
-				`v${require("../package.json").version} ${
-					this.options.versionChecking ? await checkVersion() : ""
-				}`
-			)}\n`
+			`\n${colors.bold(
+				`${colors.yellow("fox-server")} ${colors.green(
+					`v${require("../package.json").version}`
+				)}`
+			)} ${this.options.versionChecking ? await checkVersion() : ""}\n`
 		);
 
 		charLog("Preparing to bark...\n");
