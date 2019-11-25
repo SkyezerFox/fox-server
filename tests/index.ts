@@ -66,11 +66,11 @@ describe("HTTP server", () => {
 		server
 			.start()
 			.then(() => chai.request("http://localhost:" + port).get("/"))
-			.then((res) => {
+			.then(async (res) => {
 				expect(res).to.have.status(200);
 				expect(res.body).to.have.property("msg", "uwu");
 
-				server.stop();
+				await server.stop();
 				done();
 			});
 	});
@@ -89,10 +89,10 @@ describe("HTTP server", () => {
 			.then(() =>
 				chai.request("http://localhost:8080").get(`/${randInt}`)
 			)
-			.then((req) => {
+			.then(async (req) => {
 				expect(req.body).to.have.property("id", randInt + 1);
 
-				server.stop();
+				await server.stop();
 				done();
 			});
 	});
