@@ -1,9 +1,6 @@
-import { Response } from "express";
+import { ServerError } from "./ServerError";
 
-import { ServerErrorCreator } from "./ServerError";
-
-export const NotFound: ServerErrorCreator = (res: Response) =>
-	res.status(404).json({
-		code: 0,
-		msg: `404: Not Found`,
-	});
+export const NotFound: ServerError = {
+	code: 0,
+	msg: `404: Not Found`,
+};
