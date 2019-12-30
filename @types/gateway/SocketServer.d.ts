@@ -2,12 +2,12 @@
 import { IncomingMessage } from "http";
 import * as winston from "winston";
 import * as WebSocket from "ws";
-import { Server } from "../Server";
+import { FoxServer } from "../FoxServer";
 /**
  * Class for representing the socket server used for dynamic UI updates by the client.
  */
 export declare class SocketServer {
-    server: Server<any>;
+    server: FoxServer<any>;
     ws?: WebSocket.Server;
     logger: winston.Logger;
     connections: Map<string, {
@@ -15,7 +15,7 @@ export declare class SocketServer {
         s: WebSocket;
     }>;
     connected: boolean;
-    constructor(server: Server<any>);
+    constructor(server: FoxServer<any>);
     /**
      * Initialize the socket server and start listening for socket connections.
      */
