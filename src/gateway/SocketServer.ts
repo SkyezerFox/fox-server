@@ -3,21 +3,21 @@ import { IncomingMessage } from "http";
 import * as winston from "winston";
 import * as WebSocket from "ws";
 
-import { Server } from "../Server";
+import { FoxServer } from "../FoxServer";
 import { createLoggerWithPrefix } from "../util/logging";
 
 /**
  * Class for representing the socket server used for dynamic UI updates by the client.
  */
 export class SocketServer {
-	public server: Server<any>;
+	public server: FoxServer<any>;
 	public ws?: WebSocket.Server;
 
 	public logger: winston.Logger;
 	public connections: Map<string, { rq: IncomingMessage; s: WebSocket }>;
 	public connected: boolean;
 
-	constructor(server: Server<any>) {
+	constructor(server: FoxServer<any>) {
 		this.server = server;
 
 		this.logger = createLoggerWithPrefix(colors.yellow("ws"));

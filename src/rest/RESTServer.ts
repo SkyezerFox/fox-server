@@ -4,12 +4,12 @@ import * as http from "http";
 import { default as morgan } from "morgan";
 import * as winston from "winston";
 
-import { Server } from "../Server";
+import { FoxServer } from "../FoxServer";
 import { createLoggerWithPrefix } from "../util/logging";
 import { NotFound } from "./errors";
 
 export declare interface RESTServer {
-	server: Server<any>;
+	server: FoxServer<any>;
 	express: express.Application;
 	logger: winston.Logger;
 
@@ -51,11 +51,11 @@ export declare interface RESTServer {
  * Class for representing the server that handles HTTP REST client requests.
  */
 export class RESTServer {
-	public server: Server<any>;
+	public server: FoxServer<any>;
 	public express: express.Application;
 	public logger: winston.Logger;
 
-	constructor(server: Server<any>) {
+	constructor(server: FoxServer<any>) {
 		this.server = server;
 		this.express = express();
 
@@ -69,7 +69,7 @@ export class RESTServer {
 
 			const requestHandlerFunction = (<any>this.express)[
 				method.toLowerCase()
-			] as (undefined | RequestHandlerFunction);
+			] as undefined | RequestHandlerFunction;
 
 			if (requestHandlerFunction) {
 				Object.defineProperty(

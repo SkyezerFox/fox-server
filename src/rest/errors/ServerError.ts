@@ -1,11 +1,9 @@
-/**
- * Represents a error sendable by the server.
- */
+import { Response } from "express";
+
 export interface ServerError {
 	code: number;
 	msg: string;
-
-	[x: string]: number | boolean | string | {};
+	details?: string;
 }
 
-export type ServerErrorCreator = (extras: {}) => typeof extras & ServerError;
+export type ServerErrorCreator = (res: Response, details?: string) => void;
