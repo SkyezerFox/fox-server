@@ -82,7 +82,7 @@ describe("HTTP server", () => {
 		server
 			.start()
 			.then(() =>
-				chai.request("http://localhost:8080").get(`/${randInt}`)
+				chai.request("http://localhost:3000").get(`/${randInt}`)
 			)
 			.then((req) => {
 				expect(req.body).to.have.property("id", randInt + 1);
