@@ -1,10 +1,10 @@
 import * as express from "express";
 
-import { Server } from "../../Server";
+import { FoxServer } from "../../FoxServer";
 
 export type ServerHandler = (
-	server: Server,
+	server: FoxServer,
 	request: express.Request,
 	response: express.Response,
-	next: express.NextFunction,
+	next: express.NextFunction
 ) => any;

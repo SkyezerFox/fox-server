@@ -11,14 +11,14 @@ import { charLog, createLoggerWithPrefix } from "./util/logging";
 /**
  * Options to use for the server during runtime.
  *
- * @typedef ServerOptions
+ * @typedef FoxServerOptions
  *
  *
  * @property {string} dbUri - The URI to use when connecting to the database
  * @property {"debug"|"verbose"|"info"} debug - Whether to enable debug logging
  * @property {number} port - The port to listen on
  */
-export interface ServerOptions {
+export interface FoxServerOptions {
 	debug: "debug" | "verbose" | "info";
 	disableWinston: boolean;
 	disableAnimations: boolean;
@@ -28,12 +28,22 @@ export interface ServerOptions {
 	port: number;
 }
 
+const DEFAULT_SERVER_OPTIONS: FoxServerOptions = {
+	debug: "info",
+	disableWinston: false,
+	disableAnimations: false,
+	versionChecking: true,
+	disableSocketServer: false,
+	disableRESTServer: false,
+	port: 3000,
+};
+
 /**
  * Structure that represents the API HTTP REST server.
  *
- * @property {ServerOptions} options - Options to use when listening
+ * @property {FoxServerOptions} options - Options to use when listening
  */
-export class Server<T extends ServerOptions = ServerOptions> {
+export class FoxServer<T extends FoxServerOptions = FoxServerOptions> {
 	public options: T;
 
 	public http: http.Server;
@@ -42,27 +52,18 @@ export class Server<T extends ServerOptions = ServerOptions> {
 
 	public logger: winston.Logger;
 
-	public beforeStartTasks: ((server: Server<T>, ...args: any[]) => any)[];
-	public afterStartTasks: ((server: Server<T>, ...args: any[]) => any)[];
+	public beforeStartTasks: ((server: FoxServer<T>, ...args: any[]) => any)[];
+	public afterStartTasks: ((server: FoxServer<T>, ...args: any[]) => any)[];
 
-	public serverStartupTasks: ((server: Server<T>, ...args: any[]) => any)[];
+	public serverStartupTasks: ((
+		server: FoxServer<T>,
+		...args: any[]
+	) => any)[];
 
 	constructor(options?: Partial<T>) {
-		this.options = Object.assign(
-			{
-				debug: "info",
-				disableWinston: false,
-				disableAnimations: process.platform === "win32",
-				disableSocketServer: false,
-				disableRESTServer: false,
-				port: 8080,
-				versionChecking: true,
-			},
-			options
-		) as T;
+		this.options = { ...DEFAULT_SERVER_OPTIONS, ...options } as T;
 
 		// Create REST and Socket servers
-
 		this.http = http.createServer();
 
 		this.rest = new RESTServer(this);
@@ -104,7 +105,7 @@ export class Server<T extends ServerOptions = ServerOptions> {
 	 */
 	private async _iterateOverTasks(
 		spinner: ora.Ora,
-		taskList: ((server: Server<T>, ...args: any[]) => any)[]
+		taskList: ((server: FoxServer<T>, ...args: any[]) => any)[]
 	) {
 		const taskListName = spinner.text;
 		let errorCount = 0;
@@ -140,7 +141,7 @@ export class Server<T extends ServerOptions = ServerOptions> {
 	 * @param taskList
 	 */
 	private async _iterateOverTasksWithoutAnimation(
-		taskList: ((server: Server<T>, ...args: any[]) => any)[]
+		taskList: ((server: FoxServer<T>, ...args: any[]) => any)[]
 	) {
 		for (let i in taskList) {
 			const task = taskList[i];
@@ -254,7 +255,7 @@ export class Server<T extends ServerOptions = ServerOptions> {
 	 * @param taskFunctions
 	 */
 	public before(
-		...taskFunctions: Array<(server: Server<T>, ...args: any[]) => any>
+		...taskFunctions: Array<(server: FoxServer<T>, ...args: any[]) => any>
 	) {
 		this.beforeStartTasks = this.beforeStartTasks.concat(taskFunctions);
 		return this;
@@ -265,7 +266,7 @@ export class Server<T extends ServerOptions = ServerOptions> {
 	 * @param taskFunctions
 	 */
 	public after(
-		...taskFunctions: Array<(server: Server<T>, ...args: any[]) => any>
+		...taskFunctions: Array<(server: FoxServer<T>, ...args: any[]) => any>
 	) {
 		this.afterStartTasks = this.afterStartTasks.concat(taskFunctions);
 		return this;
