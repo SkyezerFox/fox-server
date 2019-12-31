@@ -1,7 +1,7 @@
 {
 	"name": "fox-server",
 	"description": "A backend template with a built-in REST API and websocket gateway functionality.",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"repository": "https://github.com/orifoxx/fox-server/",
 	"license": "MIT",
 	"scripts": {
@@ -27,8 +27,8 @@
 		"@types/mocha": "^5.2.7",
 		"@types/morgan": "^1.7.35",
 		"@types/ws": "^6.0.3",
-		"chai-http": "^4.3.0",
 		"chai": "^4.2.0",
+		"chai-http": "^4.3.0",
 		"mocha": "^6.2.2",
 		"ts-node": "^8.4.1",
 		"typescript": "^3.4.3"
