@@ -18,7 +18,7 @@
 		"ora": "^4.0.2",
 		"simple-git": "^1.126.0",
 		"winston": "^3.2.1",
-		"ws": "^7.1.2"
+		"ws": "^7.4.6"
 	},
 	"devDependencies": {
 		"@types/chai-http": "^4.2.0",
